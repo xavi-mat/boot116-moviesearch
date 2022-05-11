@@ -9,6 +9,7 @@
 // Constants
 const SEARCHURL = `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&include_adult=false`;
 const IMGURL = `https://image.tmdb.org/t/p/`;
+const MAX_TEXT_LENGTH = 240;
 
 ////////////////////////////////////////////////////////////////////////////////
 // DOM
@@ -35,6 +36,10 @@ function getSearchURL(query, page=1) {
     url += "&query=" + query;
     url += "&page=" + page;
     return url;
+}
+
+function cutText(text) {
+    return text.length > MAX_TEXT_LENGTH ? text.substring(0, MAX_TEXT_LENGTH) + '...' : text;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -78,8 +83,7 @@ function doSearch(query, page) {
     }
 
     getData(query, page, (res) => {
-        console.log(res);
-        let inn = "";
+        console.log(res.results[0]);
         res.results.forEach(movie => {
             container.appendChild(createCard(movie));
         });
@@ -91,11 +95,19 @@ function doSearch(query, page) {
     });
 }
 
-function createCard({ id, title, poster_path: poster, overview, genre_ids: genres }) {
+function createCard(data) {
+    const { id,
+        title,
+        original_title: origTitle,
+        poster_path: poster,
+        overview,
+        genre_ids: genres } = data;
+
     const newCard = document.createElement('div');
     newCard.classList.add('m-2', 'd-flex', 'border');
     newCard.style.cursor = 'pointer';
-    // newCard.style.width = '200px';
+    newCard.style.width = '600px';
+    newCard.style.height = '300px';
     newCard.dataset.id = id;
     let inn = '';
     inn += '<div style="width:200px">';
@@ -104,14 +116,17 @@ function createCard({ id, title, poster_path: poster, overview, genre_ids: genre
     // inn += '<div class="card-img-overlay">';
     // inn += '</div>';
     inn += '</div>';
-    inn += '<div class="p-2">';
-    inn += '<h4>';
-    inn += title;
-    inn += '</h4>';
-    inn += '<div class="mb-2">';
-    inn += overview;
-    inn += '</div>';
+    inn += '<div class="p-2 d-flex flex-column justify-content-between">';
     inn += '<div>';
+    inn += `<h4>${title}</h4>`;
+    if (title !== origTitle) {
+        inn += `<h6>(${origTitle})</h6>`;
+    }
+    inn += '<div class="mb-2">';
+    inn += cutText(overview);
+    inn += '</div>';
+    inn += '</div>';
+    inn += '<div class="align-self-end">';
     inn += listGenres(genres);
     inn += '</div>';
     inn += '</div>';
@@ -135,24 +150,17 @@ function listGenres(genresArray) {
  * @param pages total pages
  */
 function createNavigation(query, page, pages) {
-    // `<ul class="pagination justify-content-center" style="margin:20px 0">
-    // <li class="page-item"><button class="page-link">Previous</button></li>
-    // <li class="page-item active"><button class="page-link">1</button></li>
-    // <li class="page-item"><button class="page-link">2</button></li>
-    // <li class="page-item "><span class="page-link">...</span></li>
-    // <li class="page-item"><button class="page-link">3</button></li>
-    // <li class="page-item"><button class="page-link">Next</button></li>
-    // </ul>`;
+
+    if (pages === 1) {
+        return '';
+    }
 
     const getNaviBtn = (query, goto, text) => `<li class="page-item${page===goto?' active':''}"><button class="page-link" onclick="doSearch('${query}',${goto})">${text}</button></li>`
 
     let counter = 0;  // Max 5 page buttons
     let nextPage = Math.max(2, page - 2);
     let inn = '<ul class="pagination justify-content-center" style="margin:20px 0">';
-    // // Always previous button
-    // if (page > 1) {
-    //     inn += getNaviBtn(query, page-1, 'Previous');
-    // }
+
     // Always first button
     inn += getNaviBtn(query, 1, 1);
 
@@ -175,14 +183,8 @@ function createNavigation(query, page, pages) {
         inn += getNaviBtn(query, pages, pages);
     }
 
-    // // Always Next button
-    // if (page < pages) {
-    //     inn += getNaviBtn(query, page+1, 'Next');
-    // }
-
     inn += '</ul>';
     return inn;
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
