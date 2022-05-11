@@ -25,6 +25,14 @@ Extras
 ### Author
 [xavi-mat](https://github.com/xavi-mat)
 
+## Description
+
+**Connecting to the API.** An api_key is needed. It can be requested after registering
+an account in the web.
+
+**Poster images.** The API serves many poster images, but some movies have no poster.
+There is a *generic movie poster* to show when there is no image, instead of a broken image.
+
 ## TODO Lists
  * [ ] HTML structure
  * [x] Add Bootstrap
