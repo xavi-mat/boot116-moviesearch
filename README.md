@@ -34,8 +34,8 @@ an account in the web.
 There is a *generic movie poster* to show when there is no image, instead of a broken image.
 
 ## TODO Lists
- * [ ] HTML structure
+ * [x] HTML structure
  * [x] Add Bootstrap
  * [x] Add Axios library
- * [ ] Fetch data from API
+ * [x] Fetch data from API
 

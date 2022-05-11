@@ -30,12 +30,15 @@ let genres = {};
 ////////////////////////////////////////////////////////////////////////////////
 // Utils
 function getSearchURL(query, page=1) {
-    // console.log("page", page);
     let url = SEARCHURL;
     url += "&language=" + selectLang.value;
     url += "&query=" + query;
     url += "&page=" + page;
     return url;
+}
+
+function getMovieURL(id) {
+    return `https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}&language=${selectLang.value}`;
 }
 
 function cutText(text) {
@@ -59,6 +62,12 @@ function getGenres() {
 
 function getData(query, page, callback) {
     axios(getSearchURL(query, page))
+        .then(res => callback(res.data))
+        .catch(error => console.error(error));
+}
+
+function getMovieData(id, callback) {
+    axios(getMovieURL(id))
         .then(res => callback(res.data))
         .catch(error => console.error(error));
 }
@@ -91,7 +100,6 @@ function doSearch(query, page) {
         const paginationBar = createNavigation(query, res.page, res.total_pages);
         document.querySelectorAll('.pagination-bar')
             .forEach(bar=>bar.innerHTML=paginationBar);
-        console.log(res.page);
     });
 }
 
@@ -114,19 +122,15 @@ function createCard(data) {
     inn += '<div style="width:200px">';
     const posterUrl = poster ? `${IMGURL}w200/${poster}` : './assets/img/empty_poster.jpg';
     inn += `<img src="${posterUrl}">`;
-    // inn += '<div class="card-img-overlay">';
-    // inn += '</div>';
     inn += '</div>';
 
     inn += '<div class="d-flex flex-column justify-content-between w-100">';
     inn += '  <div>';
-    // inn += '    <div >';
     inn += `      <h4 class="card-header">${title}</h4>`;
     inn += '    <div class="p-2">';
     if (title !== origTitle) {
         inn += `  <h6>(${origTitle})</h6>`;
     }
-    // inn += '    </div>';
     inn +=        cutText(overview);
     inn += '    </div>';
     inn += '  </div>';
@@ -146,18 +150,20 @@ function createCard(data) {
 }
 
 function goMovieDetails(ev) {
-    console.log(ev.currentTarget.dataset.id);
+    // Empty former results
+    while (container.firstChild) {
+        container.removeChild(container.firstChild);
+    }
+    getMovieData(ev.currentTarget.dataset.id, (data) => {
+        container.innerHTML = '<pre>' + JSON.stringify(data, ' ', 4) + '</pre>';
+    });
+
 }
 
 function listGenres(genresArray) {
     return genresArray.map(genId => genres[genId]).join(', ');
 }
 
-/**
- *
- * @param page  current page
- * @param pages total pages
- */
 function createNavigation(query, page, pages) {
 
     if (pages === 1) {
@@ -202,8 +208,8 @@ function createNavigation(query, page, pages) {
 function getStars(num) {
     let inn = '<span class="text-warning">';
     for (let i=0; i<10; i+=2) {
-        if      (num >= i)   { inn += '<i class="bi bi-star-fill"></i>' }
-        else if (num >= i-1) { inn += '<i class="bi bi-star-half"></i>' }
+        if      (num > i)   { inn += '<i class="bi bi-star-fill"></i>' }
+        else if (num > i-1) { inn += '<i class="bi bi-star-half"></i>' }
         else                 { inn += '<i class="bi bi-star"></i>' }
     }
     inn += '</span>';
