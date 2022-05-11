@@ -101,13 +101,14 @@ function createCard(data) {
         original_title: origTitle,
         poster_path: poster,
         overview,
-        genre_ids: genres } = data;
+        genre_ids: genres,
+        vote_average: stars} = data;
 
     const newCard = document.createElement('div');
     newCard.classList.add('m-2', 'd-flex', 'border');
     newCard.style.cursor = 'pointer';
     newCard.style.width = '600px';
-    newCard.style.height = '300px';
+    newCard.style.height = '302px';
     newCard.dataset.id = id;
     let inn = '';
     inn += '<div style="width:200px">';
@@ -116,19 +117,27 @@ function createCard(data) {
     // inn += '<div class="card-img-overlay">';
     // inn += '</div>';
     inn += '</div>';
-    inn += '<div class="p-2 d-flex flex-column justify-content-between">';
-    inn += '<div>';
-    inn += `<h4>${title}</h4>`;
+
+    inn += '<div class="d-flex flex-column justify-content-between w-100">';
+    inn += '  <div>';
+    // inn += '    <div >';
+    inn += `      <h4 class="card-header">${title}</h4>`;
+    inn += '    <div class="p-2">';
     if (title !== origTitle) {
-        inn += `<h6>(${origTitle})</h6>`;
+        inn += `  <h6>(${origTitle})</h6>`;
     }
-    inn += '<div class="mb-2">';
-    inn += cutText(overview);
-    inn += '</div>';
-    inn += '</div>';
-    inn += '<div class="align-self-end">';
-    inn += listGenres(genres);
-    inn += '</div>';
+    // inn += '    </div>';
+    inn +=        cutText(overview);
+    inn += '    </div>';
+    inn += '  </div>';
+    inn += '  <div class="p-2 d-flex justify-content-between">';
+    inn += '    <div>';
+    inn +=        getStars(stars);
+    inn += '    </div>';
+    inn += '    <div>';
+    inn +=        listGenres(genres);
+    inn += '    </div>';
+    inn += '  </div>';
     inn += '</div>';
 
     newCard.innerHTML = inn;
@@ -186,6 +195,21 @@ function createNavigation(query, page, pages) {
     inn += '</ul>';
     return inn;
 }
+
+/**
+ * Get a number 0-10 and return a 5 starts rating.
+ */
+function getStars(num) {
+    let inn = '<span class="text-warning">';
+    for (let i=0; i<10; i+=2) {
+        if      (num >= i)   { inn += '<i class="bi bi-star-fill"></i>' }
+        else if (num >= i-1) { inn += '<i class="bi bi-star-half"></i>' }
+        else                 { inn += '<i class="bi bi-star"></i>' }
+    }
+    inn += '</span>';
+    return inn;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Listeners
