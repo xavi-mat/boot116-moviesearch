@@ -120,7 +120,7 @@ function createCard(data) {
     newCard.dataset.id = id;
     let inn = '';
     inn += '<div style="width:200px">';
-    const posterUrl = poster ? `${IMGURL}w200/${poster}` : './assets/img/empty_poster.jpg';
+    const posterUrl = poster ? `${IMGURL}w200${poster}` : './assets/img/empty_poster.jpg';
     inn += `<img src="${posterUrl}">`;
     inn += '</div>';
 
