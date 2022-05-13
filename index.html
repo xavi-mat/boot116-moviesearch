@@ -39,8 +39,11 @@
       </div>
   </nav>
   <div class="container mt-5 pt-5">
+    <div id="alert-box"></div>
     <div class="pagination-bar"></div>
-    <div id="container" class="container d-flex flex-wrap justify-content-center"></div>
+    <div id="container" class="container d-flex flex-wrap justify-content-center">
+      <img class="w-100" src="./assets/img/home_bg.jpg">
+    </div>
     <div class="pagination-bar"></div>
   </div>
   <footer class="mt-5 p-4 text-center border-top border-primary">
@@ -48,6 +51,34 @@
       Data from <a href="https://www.themoviedb.org" target="_blank">themoviedb.org</a>
     </div>
   </footer>
+
+  <!-- The Modal -->
+<div class="modal fade" id="myModal">
+  <div class="modal-dialog modal-fullscreen">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 id="modal-title" class="modal-title">Modal Heading</h4>
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div class="d-flex">
+          <div id="modal-img"></div>
+          <div id="modal-text" class="p-4"></div>
+        </div>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
 </body>
 
 </html>

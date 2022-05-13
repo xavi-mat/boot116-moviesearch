@@ -17,15 +17,20 @@ const searchForm = document.querySelector('#search-form');
 const searchInput = document.querySelector('#search-input');
 const container = document.querySelector('#container');
 const selectLang = document.querySelector('#select-lang');
+const alertBox = document.querySelector('#alert-box');
+const myModal = new bootstrap.Modal(document.getElementById('myModal'));
+const modalTitle = document.querySelector('#modal-title');
+const modalImg = document.querySelector('#modal-img');
+const modalText = document.querySelector('#modal-text');
 
 ////////////////////////////////////////////////////////////////////////////////
 // Globals
 let lang = "en";
 let genres = {};
+let results = {};
 
 ////////////////////////////////////////////////////////////////////////////////
 // Classes
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Utils
@@ -37,17 +42,18 @@ function getSearchURL(query, page=1) {
     return url;
 }
 
-function getMovieURL(id) {
-    return `https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}&language=${selectLang.value}`;
-}
-
 function cutText(text) {
     return text.length > MAX_TEXT_LENGTH ? text.substring(0, MAX_TEXT_LENGTH) + '...' : text;
 }
 
+function reportError(text) {
+    alertBox.innerHTML = `<div class="alert alert-danger alert-dismissible">
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    ${text}</div>`;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Functions
-
 function getGenres() {
     // Get genres list from DB
     const genreURL = `https://api.themoviedb.org/3/genre/movie/list?api_key=${apiKey}&language=en`;
@@ -56,9 +62,7 @@ function getGenres() {
         .then(res => {
             res.data.genres.forEach(obj => { genres[obj.id] = obj.name });
         });
-
 }
-
 
 function getData(query, page, callback) {
     axios(getSearchURL(query, page))
@@ -67,9 +71,7 @@ function getData(query, page, callback) {
 }
 
 function getMovieData(id, callback) {
-    axios(getMovieURL(id))
-        .then(res => callback(res.data))
-        .catch(error => console.error(error));
+    callback(results[id]);
 }
 
 function goSearch(ev) {
@@ -77,7 +79,7 @@ function goSearch(ev) {
 
     const query = searchInput.value;
     if (query.length < 2) {
-        // reportError("Two characters minimum.");
+        reportError("Two characters minimum.");
         return;
     }
 
@@ -92,8 +94,9 @@ function doSearch(query, page) {
     }
 
     getData(query, page, (res) => {
-        console.log(res.results[0]);
+        results = {};
         res.results.forEach(movie => {
+            results[movie.id] = movie;
             container.appendChild(createCard(movie));
         });
         // Pagination bar
@@ -150,12 +153,18 @@ function createCard(data) {
 }
 
 function goMovieDetails(ev) {
-    // Empty former results
-    while (container.firstChild) {
-        container.removeChild(container.firstChild);
-    }
+
     getMovieData(ev.currentTarget.dataset.id, (data) => {
-        container.innerHTML = '<pre>' + JSON.stringify(data, ' ', 4) + '</pre>';
+        let title = data.title;
+        if (data.original_title !== data.title) {
+            title += ` <small>(${data.original_title})</small>`;
+        }
+        modalTitle.innerHTML = title;
+        modalImg.innerHTML = `<img src="${IMGURL}w500${data.poster_path}">`;
+        let content = '<p>' + data.release_date.substring(0, 4) + '</p>';
+        content += `<p>${data.overview}</p>`;
+        modalText.innerHTML = `${content}`;
+        myModal.show();
     });
 
 }
@@ -194,7 +203,7 @@ function createNavigation(query, page, pages) {
     }
 
     // Last button
-    if (pages > page) {
+    if (pages >= page) {
         inn += getNaviBtn(query, pages, pages);
     }
 
@@ -208,9 +217,9 @@ function createNavigation(query, page, pages) {
 function getStars(num) {
     let inn = '<span class="text-warning">';
     for (let i=0; i<10; i+=2) {
-        if      (num > i)   { inn += '<i class="bi bi-star-fill"></i>' }
-        else if (num > i-1) { inn += '<i class="bi bi-star-half"></i>' }
-        else                 { inn += '<i class="bi bi-star"></i>' }
+        if      (num > i)   { inn += '<i class="bi bi-star-fill"></i>'; }
+        else if (num > i-1) { inn += '<i class="bi bi-star-half"></i>'; }
+        else                { inn += '<i class="bi bi-star"></i>';      }
     }
     inn += '</span>';
     return inn;
